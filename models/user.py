@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """ holds class User"""
 import models
 from models.base_model import BaseModel, Base
@@ -6,7 +6,7 @@ from os import getenv
 import sqlalchemy
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
-
+import hashlib
 
 class User(BaseModel, Base):
     """Representation of a user """
@@ -27,3 +27,24 @@ class User(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         """initializes user"""
         super().__init__(*args, **kwargs)
+
+    def to_dict(self, include_password=False):
+        """returns dictionary representation of User"""
+        user_dict = super().to_dict()
+        if not include_password:
+            user_dict.pop('password', None)
+        return user_dict
+
+    @property
+    def password(self):
+        """getter method for the password"""
+        return self.__password
+
+    @password.setter
+    def password(self, value):
+        """setter method for the password"""
+        if value:
+            hashed_password = hashlib.md5(value.encode()).hexdigest()
+            self.__password = hashed_password
+        else:
+            self.__password = ""
